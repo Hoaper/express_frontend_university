@@ -16,7 +16,6 @@ function Page() {
             const decoded_token = jwt.decode(token) as DecodedToken;
             const resp = await fetch(`http://localhost:5000/profile/${decoded_token.userId}`, {
                 method: "GET",
-
             });
             const data = await resp.json();
             data.forEach((book:any) => {
@@ -26,10 +25,6 @@ function Page() {
         })()
     }, []);
 
-
-
-    const token = localStorage.getItem('token') as string;
-    const decoded_token = jwt.decode(token) as DecodedToken;
     return (
         <div>
             <div className="mx-auto max-w-2xl px-4 py-16 sm:px-6 sm:py-24 lg:max-w-7xl lg:px-8">

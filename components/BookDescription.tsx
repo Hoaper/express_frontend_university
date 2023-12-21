@@ -23,7 +23,7 @@ export default function BookDescription({data}: {data: any}) {
     const [isModalOpen, setIsModalOpen] = React.useState(false);
 
     const processOrder = async () => {
-        const res = await fetch("http://localhost:5000/process_order", {
+        const res = await fetch("http://localhost:5000/books/process_order", {
             method: "POST",
             headers: {
                 'Content-Type': 'application/json'
