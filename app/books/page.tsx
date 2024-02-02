@@ -1,6 +1,7 @@
 'use client';
 import React, {useCallback, useEffect, useState} from 'react';
 import {Book} from "@/types/book";
+import Dropdown from "@/components/Dropdown";
 
 function Books() {
     const [books, setBooks] = useState<Book[]>([]);
@@ -8,7 +9,9 @@ function Books() {
     const [loading, setLoading] = useState(true);
     const [almost, setAlmost] = useState<Book[]>([]);
     const [topRating, setTopRating] = useState<Book[]>([]);
-
+    const [sort, setSort] = useState("title");
+    const [order, setOrder] = useState("asc");
+    const [apiUrl, setApiUrl] = useState("http://localhost:5000/books/?page=1&pageSize=40&sortField=title&sortOrder=asc");
     useEffect(() => {
         (async () => {
             const almost = await fetch("http://localhost:5000/books/almost");
@@ -20,28 +23,27 @@ function Books() {
         })();
     }, []);
 
-    const fetchMoreBooks = useCallback(async () => {
-        const apiUrl = `http://localhost:5000/books/?page=${page}&limit=40`;
+    const fetchMoreBooks = async () => {
         setLoading(true);
         try {
+            console.log(apiUrl)
             const response = await fetch(apiUrl);
             const data = await response.json();
 
             // Update the books state with the new data
             setBooks(prevBooks => [...prevBooks, ...data]);
 
-            // Increment the page number for the next fetch
-            setPage(prevPage => prevPage + 1);
         } catch (error) {
             console.error('Error fetching more books:', error);
         }
         setLoading(false);
-    }, [page]);
+    };
 
     useEffect(() => {
         // Fetch initial set of books
         fetchMoreBooks();
     }, []);
+
 
     useEffect(() => {
         // Add scroll event listener to detect when the user reaches the bottom
@@ -51,6 +53,10 @@ function Books() {
                 !loading // Add a loading state to prevent multiple simultaneous requests
             ) {
                 // Fetch more books when the user reaches the bottom
+                // Increment the page number for the next fetch
+                setPage(prevPage => prevPage + 1);
+                setApiUrl(`http://localhost:5000/books/?page=${page+1}&pageSize=40&sortField=${sort}&sortOrder=${order}`)
+                console.log(page, apiUrl)
                 fetchMoreBooks();
             }
         };
@@ -62,84 +68,117 @@ function Books() {
         };
     }, [fetchMoreBooks, loading])
 
+    useEffect(() => {
+        (async () => {
+            if (books.length <= 0) return;
+            setLoading(true);
+            try {
+                console.log(sort, order)
+                setPage(i => 1)
+                console.log("ФЕТЧИМ КОГДА ИЗМЕНИЛСЯ ФИЛЬТР")
+                const response = await fetch(`http://localhost:5000/books/?page=${page}&pageSize=40&sortField=${sort}&sortOrder=${order}`);
+                const data = await response.json();
+
+                // Update the books state with the new data
+                setBooks(prevBooks => data);
+                setApiUrl(`http://localhost:5000/books/?page=${page}&pageSize=40&sortField=${sort}&sortOrder=${order}`)
+
+            } catch (error) {
+                console.error('Error fetching more books:', error);
+            }
+            setLoading(false);
+        })();
+    }, [sort, order]);
+
+
     return (
         <div>
             <div className="mx-auto max-w-2xl px-4 py-16 sm:px-6 sm:py-24 lg:max-w-7xl lg:px-8">
-                <h2 className="text-2xl font-bold tracking-tight text-white">Топовые книги:</h2>
-                <div className="mt-6 grid grid-cols-2 gap-x-6 gap-y-10 sm:grid-cols-2 lg:grid-cols-5 xl:gap-x-8">
-                    {topRating.map((book) => (
-                        <div key={book._id} className="group relative">
-                            <div
-                                className="aspect-h-1 aspect-w-1 w-full overflow-hidden rounded-md bg-gray-200 lg:aspect-none group-hover:opacity-75 lg:h-80">
-                                <img
-                                    src={book.image}
-                                    alt={book.title}
-                                    className="h-full w-full object-cover object-center lg:h-full lg:w-full"
-                                />
-                            </div>
-                            <div className="mt-4 flex justify-between">
-                                <div>
-                                    <h3 className="text-sm text-gray-200">
-                                        <a href={`/books/${book._id}`}>
-                                            <span aria-hidden="true" className="absolute inset-0"/>
-                                            {book.title}
-                                        </a>
-                                    </h3>
-                                    <p className="mt-1 text-sm text-gray-400">{book.description.slice(0, 100)}...</p>
-                                </div>
-                                <p className="text-sm flex font-medium text-gray-900">
-                                    {book.rating}
-                                    <svg xmlns="http://www.w3.org/2000/svg" fill="yellow" viewBox="0 0 24 24"
-                                         strokeWidth={1.5} stroke="currentColor" className="-mt-0.5 w-6 h-6">
-                                        <path strokeLinecap="round" strokeLinejoin="round"
-                                              d="M11.48 3.499a.562.562 0 011.04 0l2.125 5.111a.563.563 0 00.475.345l5.518.442c.499.04.701.663.321.988l-4.204 3.602a.563.563 0 00-.182.557l1.285 5.385a.562.562 0 01-.84.61l-4.725-2.885a.563.563 0 00-.586 0L6.982 20.54a.562.562 0 01-.84-.61l1.285-5.386a.562.562 0 00-.182-.557l-4.204-3.602a.563.563 0 01.321-.988l5.518-.442a.563.563 0 00.475-.345L11.48 3.5z"/>
-                                    </svg>
+                {/*<h2 className="text-2xl font-bold tracking-tight text-white">Топовые книги:</h2>*/}
+                {/*<div className="mt-6 grid grid-cols-2 gap-x-6 gap-y-10 sm:grid-cols-2 lg:grid-cols-5 xl:gap-x-8">*/}
+                {/*    {topRating.map((book) => (*/}
+                {/*        <div key={book._id} className="group relative">*/}
+                {/*            <div*/}
+                {/*                className="aspect-h-1 aspect-w-1 w-full overflow-hidden rounded-md bg-gray-200 lg:aspect-none group-hover:opacity-75 lg:h-80">*/}
+                {/*                <img*/}
+                {/*                    src={book.image}*/}
+                {/*                    alt={book.title}*/}
+                {/*                    className="h-full w-full object-cover object-center lg:h-full lg:w-full"*/}
+                {/*                />*/}
+                {/*            </div>*/}
+                {/*            <div className="mt-4 flex justify-between">*/}
+                {/*                <div>*/}
+                {/*                    <h3 className="text-sm text-gray-200">*/}
+                {/*                        <a href={`/books/${book._id}`}>*/}
+                {/*                            <span aria-hidden="true" className="absolute inset-0"/>*/}
+                {/*                            {book.title}*/}
+                {/*                        </a>*/}
+                {/*                    </h3>*/}
+                {/*                    <p className="mt-1 text-sm text-gray-400">{book.description.slice(0, 100)}...</p>*/}
+                {/*                </div>*/}
+                {/*                <p className="text-sm flex font-medium text-gray-900">*/}
+                {/*                    {book.rating}*/}
+                {/*                    <svg xmlns="http://www.w3.org/2000/svg" fill="yellow" viewBox="0 0 24 24"*/}
+                {/*                         strokeWidth={1.5} stroke="currentColor" className="-mt-0.5 w-6 h-6">*/}
+                {/*                        <path strokeLinecap="round" strokeLinejoin="round"*/}
+                {/*                              d="M11.48 3.499a.562.562 0 011.04 0l2.125 5.111a.563.563 0 00.475.345l5.518.442c.499.04.701.663.321.988l-4.204 3.602a.563.563 0 00-.182.557l1.285 5.385a.562.562 0 01-.84.61l-4.725-2.885a.563.563 0 00-.586 0L6.982 20.54a.562.562 0 01-.84-.61l1.285-5.386a.562.562 0 00-.182-.557l-4.204-3.602a.563.563 0 01.321-.988l5.518-.442a.563.563 0 00.475-.345L11.48 3.5z"/>*/}
+                {/*                    </svg>*/}
 
-                                </p>
-                            </div>
-                        </div>
-                    ))}
-                </div>
+                {/*                </p>*/}
+                {/*            </div>*/}
+                {/*        </div>*/}
+                {/*    ))}*/}
+                {/*</div>*/}
 
 
-                <h2 className="text-2xl font-bold tracking-tight text-white">Почти закончились:</h2>
-                <div className="mt-6 grid grid-cols-2 gap-x-6 gap-y-10 sm:grid-cols-2 lg:grid-cols-5 xl:gap-x-8">
-                    {almost.map((book) => (
-                        <div key={book._id} className="group relative">
-                            <div
-                                className="aspect-h-1 aspect-w-1 w-full overflow-hidden rounded-md bg-gray-200 lg:aspect-none group-hover:opacity-75 lg:h-80">
-                                <img
-                                    src={book.image}
-                                    alt={book.title}
-                                    className="h-full w-full object-cover object-center lg:h-full lg:w-full"
-                                />
-                            </div>
-                            <div className="mt-4 flex justify-between">
-                                <div>
-                                    <h3 className="text-sm text-gray-200">
-                                        <a href={`/books/${book._id}`}>
-                                            <span aria-hidden="true" className="absolute inset-0"/>
-                                            {book.title}
-                                        </a>
-                                    </h3>
-                                    <p className="mt-1 text-sm text-gray-400">{book.description.slice(0, 100)}...</p>
-                                </div>
-                                <p className="text-sm flex font-medium text-gray-900">
-                                    {book.rating}
-                                    <svg xmlns="http://www.w3.org/2000/svg" fill="yellow" viewBox="0 0 24 24"
-                                         strokeWidth={1.5} stroke="currentColor" className="-mt-0.5 w-6 h-6">
-                                        <path strokeLinecap="round" strokeLinejoin="round"
-                                              d="M11.48 3.499a.562.562 0 011.04 0l2.125 5.111a.563.563 0 00.475.345l5.518.442c.499.04.701.663.321.988l-4.204 3.602a.563.563 0 00-.182.557l1.285 5.385a.562.562 0 01-.84.61l-4.725-2.885a.563.563 0 00-.586 0L6.982 20.54a.562.562 0 01-.84-.61l1.285-5.386a.562.562 0 00-.182-.557l-4.204-3.602a.563.563 0 01.321-.988l5.518-.442a.563.563 0 00.475-.345L11.48 3.5z"/>
-                                    </svg>
+                {/*<h2 className="text-2xl font-bold tracking-tight text-white">Почти закончились:</h2>*/}
+                {/*<div className="mt-6 grid grid-cols-2 gap-x-6 gap-y-10 sm:grid-cols-2 lg:grid-cols-5 xl:gap-x-8">*/}
+                {/*    {almost.map((book) => (*/}
+                {/*        <div key={book._id} className="group relative">*/}
+                {/*            <div*/}
+                {/*                className="aspect-h-1 aspect-w-1 w-full overflow-hidden rounded-md bg-gray-200 lg:aspect-none group-hover:opacity-75 lg:h-80">*/}
+                {/*                <img*/}
+                {/*                    src={book.image}*/}
+                {/*                    alt={book.title}*/}
+                {/*                    className="h-full w-full object-cover object-center lg:h-full lg:w-full"*/}
+                {/*                />*/}
+                {/*            </div>*/}
+                {/*            <div className="mt-4 flex justify-between">*/}
+                {/*                <div>*/}
+                {/*                    <h3 className="text-sm text-gray-200">*/}
+                {/*                        <a href={`/books/${book._id}`}>*/}
+                {/*                            <span aria-hidden="true" className="absolute inset-0"/>*/}
+                {/*                            {book.title}*/}
+                {/*                        </a>*/}
+                {/*                    </h3>*/}
+                {/*                    <p className="mt-1 text-sm text-gray-400">{book.description.slice(0, 100)}...</p>*/}
+                {/*                </div>*/}
+                {/*                <p className="text-sm flex font-medium text-gray-900">*/}
+                {/*                    {book.rating}*/}
+                {/*                    <svg xmlns="http://www.w3.org/2000/svg" fill="yellow" viewBox="0 0 24 24"*/}
+                {/*                         strokeWidth={1.5} stroke="currentColor" className="-mt-0.5 w-6 h-6">*/}
+                {/*                        <path strokeLinecap="round" strokeLinejoin="round"*/}
+                {/*                              d="M11.48 3.499a.562.562 0 011.04 0l2.125 5.111a.563.563 0 00.475.345l5.518.442c.499.04.701.663.321.988l-4.204 3.602a.563.563 0 00-.182.557l1.285 5.385a.562.562 0 01-.84.61l-4.725-2.885a.563.563 0 00-.586 0L6.982 20.54a.562.562 0 01-.84-.61l1.285-5.386a.562.562 0 00-.182-.557l-4.204-3.602a.563.563 0 01.321-.988l5.518-.442a.563.563 0 00.475-.345L11.48 3.5z"/>*/}
+                {/*                    </svg>*/}
 
-                                </p>
-                            </div>
-                        </div>
-                    ))}
-                </div>
+                {/*                </p>*/}
+                {/*            </div>*/}
+                {/*        </div>*/}
+                {/*    ))}*/}
+                {/*</div>*/}
 
 
                 <h2 className="text-2xl font-bold tracking-tight text-white">Книги, которые могут вам понравиться:</h2>
+                <div className={"mt-6 gap-4 flex"}>
+                    <Dropdown items={[{title: "Дата", value:"date"}, {value:"title", title: "Название"}]} onSelect={(value) => {
+                        setSort(value)
+                    }} initialText={"Название"} />
+
+                    <Dropdown items={[{title: "A-Z", value:"asc"}, {value:"desc", title: "Z-A"}]} onSelect={(value) => {
+                        setOrder(value)
+                    }} initialText={"A-Z"} />
+
+                </div>
 
                 <div className="mt-6 grid grid-cols-2 gap-x-6 gap-y-10 sm:grid-cols-2 lg:grid-cols-5 xl:gap-x-8">
                     {books.map((book) => (
