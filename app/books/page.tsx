@@ -7,21 +7,12 @@ function Books() {
     const [books, setBooks] = useState<Book[]>([]);
     const [page, setPage] = useState(1);
     const [loading, setLoading] = useState(true);
-    const [almost, setAlmost] = useState<Book[]>([]);
-    const [topRating, setTopRating] = useState<Book[]>([]);
     const [sort, setSort] = useState("title");
     const [order, setOrder] = useState("asc");
     const [apiUrl, setApiUrl] = useState("http://localhost:5000/books/?page=1&pageSize=40&sortField=title&sortOrder=asc");
-    useEffect(() => {
-        (async () => {
-            const almost = await fetch("http://localhost:5000/books/almost");
-            const almost_data = await almost.json();
-            setAlmost(almost_data);
-            const topRating = await fetch("http://localhost:5000/books/top_rating");
-            const topRating_data = await topRating.json();
-            setTopRating(topRating_data);
-        })();
-    }, []);
+    const [genre, setGenre] = useState("Художественная литература");
+    const [forceLoading, setForceLoading] = useState(false);
+
 
     const fetchMoreBooks = async () => {
         setLoading(true);
@@ -29,9 +20,7 @@ function Books() {
             console.log(apiUrl)
             const response = await fetch(apiUrl);
             const data = await response.json();
-
-            // Update the books state with the new data
-            setBooks(prevBooks => [...prevBooks, ...data]);
+            setBooks(prevBooks => [...prevBooks, ...data.books]);
 
         } catch (error) {
             console.error('Error fetching more books:', error);
@@ -55,7 +44,7 @@ function Books() {
                 // Fetch more books when the user reaches the bottom
                 // Increment the page number for the next fetch
                 setPage(prevPage => prevPage + 1);
-                setApiUrl(`http://localhost:5000/books/?page=${page+1}&pageSize=40&sortField=${sort}&sortOrder=${order}`)
+                setApiUrl(`http://localhost:5000/books/?page=${page+1}&pageSize=40&sortField=${sort}&sortOrder=${order}&category=${genre}`)
                 console.log(page, apiUrl)
                 fetchMoreBooks();
             }
@@ -71,24 +60,24 @@ function Books() {
     useEffect(() => {
         (async () => {
             if (books.length <= 0) return;
-            setLoading(true);
+            setForceLoading(true);
             try {
                 console.log(sort, order)
                 setPage(i => 1)
                 console.log("ФЕТЧИМ КОГДА ИЗМЕНИЛСЯ ФИЛЬТР")
-                const response = await fetch(`http://localhost:5000/books/?page=${page}&pageSize=40&sortField=${sort}&sortOrder=${order}`);
+                const response = await fetch(`http://localhost:5000/books/?page=1&pageSize=40&sortField=${sort}&sortOrder=${order}&category=${genre}`);
                 const data = await response.json();
 
                 // Update the books state with the new data
-                setBooks(prevBooks => data);
-                setApiUrl(`http://localhost:5000/books/?page=${page}&pageSize=40&sortField=${sort}&sortOrder=${order}`)
+                setBooks(prevBooks => data.books);
+                setApiUrl(`http://localhost:5000/books/?page=1&pageSize=40&sortField=${sort}&sortOrder=${order}&category=${genre}`)
 
             } catch (error) {
                 console.error('Error fetching more books:', error);
             }
-            setLoading(false);
+            setForceLoading(false);
         })();
-    }, [sort, order]);
+    }, [sort, order, genre]);
 
 
     return (
@@ -177,11 +166,14 @@ function Books() {
                     <Dropdown items={[{title: "A-Z", value:"asc"}, {value:"desc", title: "Z-A"}]} onSelect={(value) => {
                         setOrder(value)
                     }} initialText={"A-Z"} />
+                    <Dropdown items={[{title: "Художественная литература", value:"Художественная литература"}, {value:"Детская литература", title: "Детская литература"}, {value:"Популярная психология", title: "Популярная психология"}]} onSelect={(value) => {
+                        setGenre(value)
+                    }} initialText={"Художественная литература"} />
 
                 </div>
 
                 <div className="mt-6 grid grid-cols-2 gap-x-6 gap-y-10 sm:grid-cols-2 lg:grid-cols-5 xl:gap-x-8">
-                    {books.map((book) => (
+                    {!forceLoading && books.length > 0 && books.map((book) => (
                         <div key={book._id} className="group relative">
                             <div
                                 className="aspect-h-1 aspect-w-1 w-full overflow-hidden rounded-md bg-gray-200 lg:aspect-none group-hover:opacity-75 lg:h-80">
@@ -215,7 +207,7 @@ function Books() {
                     ))}
                 </div>
             </div>
-            {loading
+            {(loading || forceLoading)
                 &&
                 <div role="status" className={"flex justify-center"}>
                     <svg aria-hidden="true"

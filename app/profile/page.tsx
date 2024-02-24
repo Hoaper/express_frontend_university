@@ -12,7 +12,7 @@ function Page() {
 
     useEffect(() => {
         (async () => {
-            const token = localStorage.getItem('token') as string;
+            const token = typeof window !== 'undefined' ? localStorage.getItem('token') as string : "";
             const decoded_token = jwt.decode(token) as DecodedToken;
             const resp = await fetch(`http://localhost:5000/profile/${decoded_token.userId}`, {
                 method: "GET",
