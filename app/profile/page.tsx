@@ -2,7 +2,6 @@
 import React, {useEffect} from 'react';
 import jwt from 'jsonwebtoken';
 import {DecodedToken} from "@/types/token";
-import {Book} from "@/types/book";
 import {formatDate} from "@/utils/date";
 
 const SECRET_KEY = "1oic2oi1ensd0a9dicw121k32aspdojacs";
@@ -11,18 +10,20 @@ function Page() {
     const [books, setBooks] = React.useState([]);
 
     useEffect(() => {
-        (async () => {
-            const token = typeof window !== 'undefined' && typeof localStorage !== 'undefined' ? localStorage.getItem('token') as string : "";
-            const decoded_token = jwt.decode(token) as DecodedToken;
-            const resp = await fetch(`http://localhost:5000/profile/${decoded_token.userId}`, {
-                method: "GET",
-            });
-            const data = await resp.json();
-            data.forEach((book:any) => {
-                console.log(book)
-            })
-            setBooks(data);
-        })()
+        if (typeof window !== 'undefined') {
+            (async () => {
+                const token = localStorage.getItem('token') || "";
+                const decoded_token = jwt.decode(token) as DecodedToken;
+                const resp = await fetch(`http://localhost:5000/profile/${decoded_token.userId}`, {
+                    method: "GET",
+                });
+                const data = await resp.json();
+                data.forEach((book: any) => {
+                    console.log(book)
+                });
+                setBooks(data);
+            })();
+        }
     }, []);
 
     return (
@@ -72,5 +73,6 @@ function Page() {
         </div>
     );
 }
+
 
 export default Page;
