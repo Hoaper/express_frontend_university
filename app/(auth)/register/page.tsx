@@ -22,7 +22,7 @@ function Page() {
         })
         if (res.ok) {
             const data = await res.json()
-            localStorage.setItem('token', data.token)
+            if (typeof window !== 'undefined') localStorage.setItem('token', data.token)
             router.push('/')
         } else {
             const data = await res.json()

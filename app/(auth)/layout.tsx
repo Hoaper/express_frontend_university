@@ -6,7 +6,7 @@ export default function RootLayout({
 }: {
     children: React.ReactNode
 }) {
-    const token = localStorage.getItem("token");
+    const token = typeof window !== 'undefined' ? localStorage.getItem('token') as string : "";
     const router = useRouter();
     if (!token) {
         return <>{children}</>;
