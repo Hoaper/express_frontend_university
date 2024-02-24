@@ -13,7 +13,7 @@ function Page() {
 
     const onSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
         e.preventDefault()
-        const res = await fetch('http://localhost:5000/auth/register', {
+        const res = await fetch('https://express-node-university.onrender.com/auth/register', {
             method: 'POST',
             headers: {
                 'Content-Type': 'application/json'

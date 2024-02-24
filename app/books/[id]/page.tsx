@@ -9,7 +9,7 @@ export default function Page({ params }: { params: { id: string } }) {
     useEffect(() => {
         (async () => {
             setLoading(true);
-            const res = await fetch(`http://localhost:5000/books/book/${params.id}`);
+            const res = await fetch(`https://express-node-university.onrender.com/books/book/${params.id}`);
             const data = await res.json();
             setData(data);
             console.log(data);
