@@ -1,6 +1,6 @@
 'use client';
 import React from 'react';
-import {useRouter} from "next/router";
+import {useRouter} from "next/navigation";
 
 function Layout({ children }: { children: React.ReactNode }) {
     const token = typeof window !== 'undefined' ? localStorage.getItem('token') as string : "";
