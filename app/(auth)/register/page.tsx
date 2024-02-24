@@ -11,8 +11,14 @@ function Page() {
     const [login, setLogin] = React.useState('')
     const [password, setPassword] = React.useState('')
 
+    const password_regex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
     const onSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
         e.preventDefault()
+        if (
+            !password_regex.test(login)
+        ) {
+            return toast("🔑 Invalid mail")
+        }
         const res = await fetch('https://express-node-university.onrender.com/auth/register', {
             method: 'POST',
             headers: {
