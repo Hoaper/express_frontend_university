@@ -19,7 +19,7 @@ function Page() {
         ) {
             return toast("🔑 Invalid mail")
         }
-        const res = await fetch('https://express-node-university.onrender.com/auth/register', {
+        const res = await fetch('https://golang-university.onrender.com/auth/register', {
             method: 'POST',
             headers: {
                 'Content-Type': 'application/json'

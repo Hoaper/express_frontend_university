@@ -14,7 +14,7 @@ function Page() {
             (async () => {
                 const token = localStorage.getItem('token') || "";
                 const decoded_token = jwt.decode(token) as DecodedToken;
-                const resp = await fetch(`https://express-node-university.onrender.com/profile/${decoded_token.userId}`, {
+                const resp = await fetch(`https://golang-university.onrender.com/profile/${decoded_token.userId}`, {
                     method: "GET",
                 });
                 const data = await resp.json();

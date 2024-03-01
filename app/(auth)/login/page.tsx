@@ -12,7 +12,7 @@ function Page() {
 
     const onSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
         e.preventDefault()
-        const res = await fetch('https://express-node-university.onrender.com/auth/login', {
+        const res = await fetch('https://golang-university.onrender.com/auth/login', {
             method: 'POST',
             headers: {
                 'Content-Type': 'application/json'

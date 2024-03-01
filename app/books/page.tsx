@@ -9,7 +9,7 @@ function Books() {
     const [loading, setLoading] = useState(true);
     const [sort, setSort] = useState("title");
     const [order, setOrder] = useState("asc");
-    const [apiUrl, setApiUrl] = useState("https://express-node-university.onrender.com/books/?page=1&pageSize=40&sortField=title&sortOrder=asc");
+    const [apiUrl, setApiUrl] = useState("https://golang-university.onrender.com/books/?page=1&pageSize=40&sortField=title&sortOrder=asc");
     const [genre, setGenre] = useState("Художественная литература");
     const [forceLoading, setForceLoading] = useState(false);
 
@@ -20,7 +20,7 @@ function Books() {
             console.log(apiUrl)
             const response = await fetch(apiUrl);
             const data = await response.json();
-            setBooks(prevBooks => [...prevBooks, ...data.books]);
+            setBooks(prevBooks => [...prevBooks, ...data]);
 
         } catch (error) {
             console.error('Error fetching more books:', error);
@@ -44,7 +44,7 @@ function Books() {
                 // Fetch more books when the user reaches the bottom
                 // Increment the page number for the next fetch
                 setPage(prevPage => prevPage + 1);
-                setApiUrl(`https://express-node-university.onrender.com/books/?page=${page+1}&pageSize=40&sortField=${sort}&sortOrder=${order}&category=${genre}`)
+                setApiUrl(`https://golang-university.onrender.com/books/?page=${page+1}&pageSize=40&sortField=${sort}&sortOrder=${order}&category=${genre}`)
                 console.log(page, apiUrl)
                 fetchMoreBooks();
             }
@@ -65,12 +65,12 @@ function Books() {
                 console.log(sort, order)
                 setPage(i => 1)
                 console.log("ФЕТЧИМ КОГДА ИЗМЕНИЛСЯ ФИЛЬТР")
-                const response = await fetch(`https://express-node-university.onrender.com/books/?page=1&pageSize=40&sortField=${sort}&sortOrder=${order}&category=${genre}`);
+                const response = await fetch(`https://golang-university.onrender.com/books/?page=1&pageSize=40&sortField=${sort}&sortOrder=${order}&category=${genre}`);
                 const data = await response.json();
 
                 // Update the books state with the new data
-                setBooks(prevBooks => data.books);
-                setApiUrl(`https://express-node-university.onrender.com/books/?page=1&pageSize=40&sortField=${sort}&sortOrder=${order}&category=${genre}`)
+                setBooks(prevBooks => data);
+                setApiUrl(`https://golang-university.onrender.com/books/?page=1&pageSize=40&sortField=${sort}&sortOrder=${order}&category=${genre}`)
 
             } catch (error) {
                 console.error('Error fetching more books:', error);

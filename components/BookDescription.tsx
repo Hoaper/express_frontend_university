@@ -23,7 +23,7 @@ export default function BookDescription({data}: {data: any}) {
     const [isModalOpen, setIsModalOpen] = React.useState(false);
 
     const processOrder = async () => {
-        const res = await fetch("https://express-node-university.onrender.com/books/process_order", {
+        const res = await fetch("https://golang-university.onrender.com/books/process_order", {
             method: "POST",
             headers: {
                 'Content-Type': 'application/json'
